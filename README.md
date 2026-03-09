@@ -1,2 +1,5 @@
 # IOT-SAFETY-SYSTEM-WITH-GEO-FENCING-FALL-DETECTION-LIVE-HEALTH-MONITORING
 martClimb is an IoT-based wearable safety system for climbers in remote and risky environments. With features like geo-fencing, fall detection, and emergency alerts, the system quickly detects accidents and sends the climber’s location to responders, improving safety and rescue response.
+
+
+SmartClimb is an IoT-based wearable safety system designed to improve the safety of climbers and mountaineers operating in extreme and remote environments. Climbing activities expose individuals to various risks such as falls, fatigue, harsh weather conditions, low oxygen levels, and disorientation. While modern climbing equipment enhances physical protection, there is still a lack of real-time health monitoring, location tracking, and automatic emergency alerts. SmartClimb addresses this gap by integrating geo-fencing, fall detection, and continuous health monitoring into a compact IoT wearable device. The system continuously monitors the climber's location, motion, and vital health parameters, enabling early detection of emergencies and rapid response.
