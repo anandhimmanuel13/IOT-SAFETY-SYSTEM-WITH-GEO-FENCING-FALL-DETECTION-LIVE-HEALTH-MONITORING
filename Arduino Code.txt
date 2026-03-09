@@ -1,0 +1,199 @@
+ARDUINO CODE
+
+
+
+
+#include <LiquidCrystal.h>
+#include <Wire.h>
+#include "MAX30100_PulseOximeter.h"
+#define REPORTING_PERIOD_MS     1000
+#define Buzzer 7
+int count=0;
+
+PulseOximeter pox;
+uint32_t tsLastReport = 0;
+
+void onBeatDetected()
+{
+    //Serial.println("Beat!");
+}
+
+
+
+LiquidCrystallcd(13, 12, 11, 10, 9, 8);
+
+int H,T,S;
+
+void setup() 
+{
+Serial.begin(9600);
+lcd.begin(16,2);
+
+
+
+pinMode(A0,INPUT);//gyro
+pinMode(A1,INPUT);
+pinMode(A2,INPUT);
+
+lcd.setCursor(0,0);
+lcd.print("  SmartHealth  ");
+lcd.setCursor(0,1);
+lcd.print("Monitor via IOT");
+
+delay(2000);
+lcd.clear();
+
+pinMode(Buzzer,OUTPUT);
+//digitalWrite(Buzzer,LOW);
+
+
+
+  //Serial.print("Initializing pulse oximeter..");
+    if (!pox.begin()) {
+        //Serial.println("FAILED");
+for(;;);
+    } else {
+        //Serial.println("SUCCESS");
+    }
+pox.setIRLedCurrent(MAX30100_LED_CURR_7_6MA);
+pox.setOnBeatDetectedCallback(onBeatDetected);
+
+
+
+}
+
+void loop() 
+{
+
+  if (Serial.available()>0) 
+  {
+  char y=Serial.read();
+  //Serial.print(a);
+
+  if(y=='K')
+  {  
+    float K1=Serial.parseFloat();   ///Heart Rate
+lcd.setCursor(10, 1);
+lcd.print("T:");
+lcd.print(K1);
+
+    }
+
+  } 
+
+gyro();
+
+
+
+pox.update();
+  if (millis() - tsLastReport> REPORTING_PERIOD_MS)
+  {   
+        S=(pox.getSpO2());
+        H=(pox.getHeartRate());
+tsLastReport = millis();
+  }
+
+lcd.setCursor(0, 0);
+lcd.print("HR:");
+lcd.setCursor(3, 0);
+lcd.print("   ");
+lcd.setCursor(3, 0);
+lcd.print(H); 
+
+lcd.setCursor(6, 0);
+lcd.print("BO:");
+lcd.setCursor(9, 0);
+lcd.print("   ");
+lcd.setCursor(9, 0);
+lcd.print(S);   
+
+
+Serial.print("S");
+Serial.print(S); 
+delay(10);
+Serial.print("H");
+Serial.print(H); 
+delay(10);
+
+    if ((S>95))//(H>70)&&
+  {
+lcd.setCursor (0,1);
+lcd.print("HR-SPO2 N ");
+   // Serial.println("HR-SPO2 N ");
+
+  }
+
+  else if ((H==0)&&(S==0))
+  {
+
+lcd.setCursor(0,1);
+lcd.print("No Finger ");
+   // Serial.println("No Finger ");
+    }
+  else if (S==0)
+  {
+lcd.setCursor(0,1);
+lcd.print("No Finger ");
+  //  Serial.println("No Finger ");
+    }    
+
+  else
+  {
+lcd.setCursor (0,1);
+lcd.print("HRSPO2 AN");
+  //  Serial.println("HR-SPO2 AN");
+  //  Serial.println("HR-SPO2 AN");
+    }
+
+}
+
+
+void gyro()
+
+{
+          int x = analogRead(A0);
+          int y = analogRead(A1);
+          int z = analogRead(A2);
+
+          x = x / 100;
+          y = y / 100;
+          z = z / 100;
+          /******************/
+//Serial.print(x);
+//Serial.print(y);
+//Serial.print(z);
+//delay(2000);
+
+      if(x==3&&y==3&&z==3)
+      {
+    //   g=0;
+digitalWrite(Buzzer,LOW); 
+lcd.setCursor(14,0);
+lcd.print("FN");
+Serial.print('n');            
+      }
+
+      else if(x==3&&y==3&&z==4)
+      {       
+  //    g=0;
+digitalWrite(Buzzer,LOW); 
+lcd.setCursor(14,0);
+lcd.print("FN");
+Serial.print('n'); 
+delay(5);    
+      }
+
+      else
+      {
+
+   //   g=1;
+digitalWrite(Buzzer,HIGH);
+lcd.setCursor(14,0);
+lcd.print("FD");
+Serial.print('N');
+delay(5);
+//            gps(help); 
+
+
+      }
+}

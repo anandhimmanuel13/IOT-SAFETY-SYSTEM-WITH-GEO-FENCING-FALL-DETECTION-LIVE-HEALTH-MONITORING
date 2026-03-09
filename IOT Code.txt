@@ -1,0 +1,115 @@
+IOT CODE
+
+//majorprojectece4@gmail.com
+//projectiot2024
+
+
+
+#include <Wire.h>
+#define BLYNK_TEMPLATE_ID "TMPL3P5IXCQAB"
+#define BLYNK_TEMPLATE_NAME "health care"
+#define BLYNK_AUTH_TOKEN "tYUjOny7jMwg5Nd1GBE6ybmuFz9AUze5"
+
+/* Comment this out to disable prints and save space */
+#define BLYNK_PRINT Serial
+
+
+#include <ESP8266WiFi.h>
+#include <BlynkSimpleEsp8266.h>
+
+// Your WiFi credentials.
+// Set password to "" for open networks.
+char ssid[] = "projectiot";
+char pass[] = "123456789";
+
+#define VPIN_1    V0  // Temp
+#define VPIN_2    V1  // Heart Rate
+#define VPIN_3    V2  // Temp_Status
+#define VPIN_4    V3  // SPO2
+#define VPIN_5    V4  // Position
+
+BLYNK_CONNECTED()
+{ 
+
+Blynk.syncVirtual(V0);  // Temp
+Blynk.syncVirtual(V1);  // Heart Rate
+Blynk.syncVirtual(V2);  // Temp_Status
+Blynk.syncVirtual(V3);  // SPO2
+Blynk.syncVirtual(V4);  // Position
+
+
+}
+
+#include <OneWire.h>
+#include <DallasTemperature.h>
+
+// Data wire is plugged into port 15 on the ESP32
+#define ONE_WIRE_BUS D4
+
+// Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
+OneWireoneWire(ONE_WIRE_BUS);
+DallasTemperature sensors(&oneWire);
+uint8_t sensor[8] = { 0x28, 0x2C, 0x1A, 0x43, 0xD4, 0xE1, 0x3C, 0x57};
+float tempSensor;
+void setup()
+{
+  // Debug console
+Serial.begin(9600);
+delay(100);
+sensors.begin();     
+
+
+
+Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
+  // You can also specify server:
+  //Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass, "blynk.cloud", 80);
+  //Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass, IPAddress(192,168,1,100), 8080);
+}
+
+void loop()
+{
+Blynk.run();
+  if (Serial.available()>0) 
+  {
+  char a=Serial.read();
+  //Serial.print(a);
+if(a=='H')
+{  
+ int H=Serial.parseInt();   ///Heart Rate
+Blynk.virtualWrite(VPIN_2,H); 
+}
+
+ if(a=='S')
+{  
+ int S=Serial.parseInt(); 
+Blynk.virtualWrite(VPIN_4,S);//SPO2 
+}
+
+if(a=='N')//Position
+    {  
+Blynk.virtualWrite(VPIN_5,HIGH); 
+    }
+    if(a=='n')
+    {  
+Blynk.virtualWrite(VPIN_5,LOW); 
+    }
+
+}
+sensors.requestTemperatures();
+tempSensor = sensors.getTempC(sensor); 
+Blynk.virtualWrite(VPIN_1,tempSensor);
+Serial.print("K"); 
+Serial.println(tempSensor);
+        if (tempSensor> 36)
+        {
+Blynk.virtualWrite(VPIN_3,HIGH);
+        //Serial.println("J");  
+delay(100);
+        }
+        else
+        {
+Blynk.virtualWrite(VPIN_3,LOW); 
+        //Serial.println("j");  
+delay(100);
+        }
+}
